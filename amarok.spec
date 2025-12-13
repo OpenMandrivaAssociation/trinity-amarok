@@ -1,12 +1,23 @@
-#
-# Please submit bugfixes or comments via http://www.trinitydesktop.org/
-#
+%bcond clang 1
+%bcond gamin 1
+%bcond daap 0
+%bcond ifp 1
+%bcond gpod 1
+%bcond mtp 1
+%bcond njb 1
+%bcond libvisual 1
+%bcond inotify 1
+%bcond xine 1
+%bcond yauap 1
+%bcond akode 1
 
 # TDE variables
 %define tde_epoch 2
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
+%define pkg_rel 2
+
 %define tde_pkg amarok
 %define tde_prefix /opt/trinity
 %define tde_bindir %{tde_prefix}/bin
@@ -21,33 +32,26 @@
 %define tde_tdeincludedir %{tde_includedir}/tde
 %define tde_tdelibdir %{tde_libdir}/trinity
 
-%if 0%{?mdkversion}
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
 %define _disable_rebuild_configure 1
-%endif
 
 # fixes error: Empty %files file …/debugsourcefiles.list
 %define _debugsource_template %{nil}
 
 %define tarball_name %{tde_pkg}-trinity
-%global toolchain %(readlink /usr/bin/cc)
 
 
 Name:		trinity-%{tde_pkg}
 Epoch:		%{tde_epoch}
 Version:	1.4.10
-Release:	%{?tde_version}_%{?!preversion:1}%{?preversion:0_%{preversion}}%{?dist}
+Release:	%{?tde_version}_%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
 Summary:	Media player for TDE
 Group:		Applications/Multimedia
 URL:		http://www.trinitydesktop.org/
 #Url:		http://amarok.kde.org
 
-%if 0%{?suse_version}
-License:	GPL-2.0+
-%else
 License:	GPLv2+
-%endif
 
 #Vendor:		Trinity Desktop
 #Packager:	Francois Andriot <francois.andriot@free.fr>
@@ -56,7 +60,35 @@ Prefix:		%{tde_prefix}
 
 Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/multimedia/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 
-BuildRequires:  cmake make
+BuildSystem:    cmake
+BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
+BuildOption:    -DCMAKE_SKIP_RPATH=OFF
+BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
+BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
+BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
+BuildOption:    -DBIN_INSTALL_DIR=%{tde_bindir}
+BuildOption:    -DCONFIG_INSTALL_DIR="%{tde_confdir}"
+BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_tdeincludedir}
+BuildOption:    -DLIB_INSTALL_DIR=%{tde_libdir}
+BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_datadir}
+BuildOption:    -DWITH_KONQSIDEBAR=ON
+BuildOption:    -DWITH_SYSTEM_SQLITE=ON
+BuildOption:    -DBUILD_ALL=ON
+BuildOption:    -DWITH_OPENGL=ON
+%{?with_libvisual:BuildOption:    -DWITH_LIBVISUAL=ON}
+%{?with_xine:BuildOption:    -DWITH_XINE=ON} 
+%{?!with_xine:BuildOption:    -DWITH_XINE=OFF}
+%{?with_yauap:BuildOption:    -DWITH_YAUAP=ON}
+%{?with_akode:BuildOption:    -DWITH_AKODE=ON}
+%{!?with_akode:BuildOption:    -DWITH_AKODE=OFF}
+%{?with_gpod:BuildOption:    -DWITH_IPOD=ON}
+%{?with_ifp:BuildOption:    -DWITH_IFP=ON}
+%{?with_njb:BuildOption:    -DWITH_NJB=ON}
+%{?with_mtp:BuildOption:    -DWITH_MTP=ON}
+%{!?with_daap:BuildOption:    -DWITH_DAAP=OFF}
+%{?with_inotify:BuildOption:    -DWITH_INOTIFY=ON}
+
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
 BuildRequires:	trinity-konqueror-devel >= %{tde_version}
@@ -66,24 +98,14 @@ Requires:		trinity-filesystem >= %{tde_version}
 
 BuildRequires:	desktop-file-utils
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
-%if "%{?toolchain}" != "clang"
-BuildRequires:	gcc-c++
-%endif
+
+%{!?with_clang:BuildRequires:	gcc-c++}
+
 BuildRequires:	pkgconfig
 BuildRequires:	gettext
 
 # ACL support
 BuildRequires:  pkgconfig(libacl)
-
-# SUSE desktop files utility
-%if 0%{?suse_version}
-BuildRequires:	update-desktop-files
-%endif
-
-%if 0%{?opensuse_bs} && 0%{?suse_version}
-# for xdg-menu script
-BuildRequires:	brp-check-trinity
-%endif
 
 # ALSA support
 BuildRequires:  pkgconfig(alsa)
@@ -93,9 +115,6 @@ BuildRequires:  pkgconfig(libpcre2-posix)
 
 # LIBTOOL
 BuildRequires:	libtool
-%if 0%{?fedora} > 4 || 0%{?rhel} > 4
-BuildRequires:	libtool-ltdl-devel
-%endif
 
 BuildRequires:  pkgconfig(libusb)
 BuildRequires:  pkgconfig(libusb-1.0)
@@ -111,113 +130,48 @@ BuildRequires:  pkgconfig(sqlite3)
 # POSTGRESQL support
 BuildRequires:  pkgconfig(libpq)
 
-# not used anymore, in favor of libvisual ? -- Rex
-#{?fedora:BuildRequires:  xmms-devel}
-
 # IDN support
 BuildRequires:	pkgconfig(libidn)
 
 # GAMIN support
-#  Not on openSUSE.
-%if 0%{!?suse_version}
-%define with_gamin 1
-BuildRequires:	pkgconfig(gamin)
-%endif
+%{?with_gamin:BuildRequires:	pkgconfig(gamin)}
 
 # DBUS support
 BuildRequires:  pkgconfig(dbus-1)
 
 # DBUS-(T)QT support
-%if 0%{?rhel} == 4
-BuildRequires:	dbus-qt
-%else
 BuildRequires:	trinity-dbus-tqt-devel >= 1:0.63
-%endif
-
-# DAAP support
-%define with_daap 0
 
 # IFP support
-#  IFP package is broken under PCLinuxOS.
-%if 0%{?pclinuxos} == 0
-%if ( 0%{?fedora} && 0%{?fedora} <= 40 ) || 0%{?mgaversion} || 0%{?mdkversion}
-%define with_ifp 1
-%if 0%{?mgaversion} || 0%{?mdkversion}
-BuildRequires:	%{_lib}ifp-devel
-%else
-BuildRequires:	libifp-devel
-%endif
-%endif
-%endif
-
-# KARMA support
-%if 0%{?mgaversion} || 0%{?mdkversion}
-%if 0%{?pclinuxos} == 0 && 0%{?mdkver} < 5000000
-%define with_karma 1
-BuildRequires:	libkarma-devel
-BuildRequires:	karma-sharp
-%endif
-%endif
+%{?with_ifp:BuildRequires:	%{_lib}ifp-devel}
 
 # GPOD (ipod) support
-%define with_gpod 1
-BuildRequires:	pkgconfig(libgpod-1.0) >= 0.4.2
+%{?with_gpod:BuildRequires:	pkgconfig(libgpod-1.0) >= 0.4.2}
 
 # MTP players
-%define with_mtp 1
-BuildRequires:  pkgconfig(libmtp)
+%{?with_mtp:BuildRequires:  pkgconfig(libmtp)}
 
 # Creative Nomad Jukebox
-%define with_njb 1
-BuildRequires:  pkgconfig(libnjb)
+%{?with_njb:BuildRequires:  pkgconfig(libnjb)}
 
 # VISUAL support
-%define with_libvisual 1
-BuildRequires:  pkgconfig(libvisual-0.4)
-
-# MUSICBRAINZ support
-BuildRequires:  pkgconfig(libmusicbrainz5)
-
-# TUNEPIMP support
-BuildRequires:	pkgconfig(libofa)
-%if 0%{?mgaversion} && 0%{?mgaversion} <= 2
-BuildRequires:	libtunepimp-devel
-%endif
-%if 0%{?suse_version} && 0%{?suse_version} != 1330 && 0%{?suse_version} < 1500
-BuildRequires:	libtunepimp-devel
-%endif
-%if 0%{?fedora} && 0%{?fedora} <= 23
-BuildRequires:	libtunepimp-devel
-%endif
+%{?with_libvisual:BuildRequires:  pkgconfig(libvisual-0.4)}
 
 # INOTIFY support
-%if 0%{?rhel} >= 5 || 0%{?fedora} || 0%{?mdkversion} || 0%{?mgaversion} || 0%{?suse_version}
-%define with_inotify 1
-%if 0%{?mgaversion} || 0%{?mdkversion}
-BuildRequires:	%{_lib}inotifytools-devel
-%endif
-%endif
+%{?with_inotify:BuildRequires:	%{_lib}inotifytools-devel}
 
 # XINE support
-%define with_xine 1
+%if %{with xine}
 BuildRequires:  pkgconfig(libxine)
 Requires:       xine-plugins
-
-# YAUAP support - appears broken
-%if 0%{?rhel} >= 5 || 0%{?fedora} || 0%{?mdkversion} || 0%{?mgaversion} || 0%{?suse_version}
-%define with_yauap 1
 %endif
 
 # AKODE support
-%define with_akode 1
-BuildRequires:	trinity-akode-devel
+%{?with_akode:BuildRequires:	trinity-akode-devel}
 
 # ruby
 BuildRequires:	ruby
 BuildRequires:	ruby-devel
-%if 0%{?fedora} >= 19
-BuildRequires:	rubypick
-%endif
 
 # PYTHON support
 %global python python3
@@ -287,7 +241,7 @@ Amarok is a multimedia player with:
 %{tde_libdir}/libamarok.so.0
 %{tde_libdir}/libamarok.so.0.0.0
 # DAAP
-%if 0%{?with_daap}
+%if %{with daap}
 %{tde_bindir}/amarok_daapserver.rb
 %{tde_tdelibdir}/libamarok_daap-mediadevice.*
 %{tde_datadir}/services/amarok_daap-mediadevice.desktop
@@ -302,7 +256,7 @@ Amarok is a multimedia player with:
 %{tde_datadir}/services/amarok_smb-device.desktop
 %{tde_tdelibdir}/libamarok_smb-device.*
 # IPod
-%if 0%{?with_gpod}
+%if %{with gpod}
 %{tde_datadir}/services/amarok_ipod-mediadevice.desktop
 %{tde_tdelibdir}/libamarok_ipod-mediadevice.*
 %endif
@@ -310,30 +264,25 @@ Amarok is a multimedia player with:
 %{tde_datadir}/services/amarok_generic-mediadevice.desktop
 %{tde_tdelibdir}/libamarok_generic-mediadevice.*
 # iRiver
-%if 0%{?with_ifp}
+%if %{with ifp}
 %{tde_datadir}/services/amarok_ifp-mediadevice.desktop
 %{tde_tdelibdir}/libamarok_ifp-mediadevice.*
 %endif
 # Creative Zen
-%if 0%{?with_njb}
+%if %{with njb}
 %{tde_datadir}/services/amarok_njb-mediadevice.desktop
 %{tde_tdelibdir}/libamarok_njb-mediadevice.*
 %endif
 # MTP players
-%if 0%{?with_mtp}
+%if %{with mtp}
 %{tde_datadir}/services/amarok_mtp-mediadevice.desktop
 %{tde_tdelibdir}/libamarok_mtp-mediadevice.*
-%endif
-# Rio Karma
-%if 0%{?with_karma}
-%{tde_datadir}/services/amarok_riokarma-mediadevice.desktop
-%{tde_tdelibdir}/libamarok_riokarma-mediadevice.*
 %endif
 # Void engine (noop)
 %{tde_datadir}/services/amarok_void-engine_plugin.desktop
 %{tde_tdelibdir}/libamarok_void-engine_plugin.*
 # Xine engine
-%if 0%{?with_xine}
+%if %{with xine}
 %{tde_datadir}/services/amarok_xine-engine.desktop
 %{tde_tdelibdir}/libamarok_xine-engine.*
 %endif
@@ -341,12 +290,12 @@ Amarok is a multimedia player with:
 #{tde_datadir}/services/amarok_gst10engine_plugin.desktop
 #{tde_tdelibdir}/libamarok_gst10engine_plugin.*
 # YAUAP
-%if 0%{?with_yauap}
+%if %{with yauap}
 %{tde_datadir}/services/amarok_yauap-engine_plugin.desktop
 %{tde_tdelibdir}/libamarok_yauap-engine_plugin.*
 %endif
 # AKODE
-%if 0%{?with_akode}
+%if %{with akode}
 %{tde_datadir}/services/amarok_aKode-engine.desktop
 %{tde_tdelibdir}/libamarok_aKode-engine.*
 %endif
@@ -372,7 +321,7 @@ Requires:		trinity-konqueror
 
 ##########
 
-%if 0%{?with_libvisual}
+%if %{with libvisual}
 
 %package visualisation
 Summary:		Visualisation plugins for Amarok
@@ -393,17 +342,8 @@ use any of xmms' visualisation plugins with Amarok.
 
 %endif
 
-##########
 
-%if 0%{?suse_version} && 0%{?opensuse_bs} == 0
-%debug_package
-%endif
-
-##########
-
-%prep
-%autosetup -p1 -n %{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}
-
+%conf -p
 # Fix some Ruby stuff
 if ! ruby -rrbconfig -e "puts Config.expand( Config::MAKEFILE_CONFIG['MAJOR'] )" &>/dev/null; then
   %__sed -i "amarok/src/mediadevice/daap/ConfigureChecks.cmake" \
@@ -411,85 +351,22 @@ if ! ruby -rrbconfig -e "puts Config.expand( Config::MAKEFILE_CONFIG['MAJOR'] )"
          -e "s|Config\.|RbConfig\.|g"
 fi
 
-%if 0%{?fedora} >= 30 || 0%{?rhel} >= 8 || 0%{?mgaversion} >= 8
-%__sed -i "amarok/src/scripts/common/Publisher.py" \
-          "amarok/src/scripts/common/Zeroconf.py" \
-          "amarok/src/scripts/playlist2html/Playlist.py" \
-          "amarok/src/scripts/playlist2html/playlist2html.py" \
-          "amarok/src/scripts/playlist2html/PlaylistServer.py" \
-          "amarok/src/scripts/webcontrol/Playlist.py" \
-          "amarok/src/scripts/webcontrol/RequestHandler.py" \
-          "amarok/src/scripts/webcontrol/WebControl.py" \
-  -e "s|/usr/bin/env python|/usr/bin/env %{python}|"
-%endif
-
-
-%build
 unset QTDIR QTINC QTLIB
 export PATH="%{tde_bindir}:${PATH}"
 export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
 
-# Specific path for RHEL4
-if [ -d /usr/X11R6 ]; then
-  export RPM_OPT_FLAGS="${RPM_OPT_FLAGS} -I/usr/X11R6/include -L/usr/X11R6/%{_lib}"
-fi
 
-if ! rpm -E %%cmake|grep -e 'cd build\|cd ${CMAKE_BUILD_DIR:-build}'; then
-  %__mkdir_p build
-  cd build
-fi
-
-# Warning: GCC visibility causes FTBFS [Bug #1285]
-%cmake \
-  -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-  -DCMAKE_C_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_CXX_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_SKIP_RPATH=OFF \
-  -DCMAKE_SKIP_INSTALL_RPATH=OFF \
-  -DCMAKE_INSTALL_RPATH="%{tde_libdir}" \
-  -DCMAKE_NO_BUILTIN_CHRPATH=ON \
-  -DCMAKE_VERBOSE_MAKEFILE=ON \
-  -DWITH_GCC_VISIBILITY=OFF \
-  \
-  -DBIN_INSTALL_DIR=%{tde_bindir} \
-  -DCONFIG_INSTALL_DIR="%{tde_confdir}" \
-  -DINCLUDE_INSTALL_DIR=%{tde_tdeincludedir} \
-  -DLIB_INSTALL_DIR=%{tde_libdir} \
-  -DSHARE_INSTALL_PREFIX=%{tde_datadir} \
-  \
-  %{?with_libvisual:-DWITH_LIBVISUAL=ON} \
-  -DWITH_KONQSIDEBAR=ON \
-  %{?with_xine:-DWITH_XINE=ON} %{?!with_xine:-DWITH_XINE=OFF} \
-  %{?with_yauap:-DWITH_YAUAP=ON} \
-  -DWITH_AKODE=ON \
-  %{?with_gpod:-DWITH_IPOD=ON} \
-  %{?with_ifp:-DWITH_IFP=ON} \
-  %{?with_njb:-DWITH_NJB=ON} \
-  %{?with_mtp:-DWITH_MTP=ON} \
-  %{?with_karma:-DWITH_RIOKARMA=ON} \
-  %{!?with_daap:-DWITH_DAAP=OFF} \
-  %{?with_inotify:-DWITH_INOTIFY=ON} \
-  -DWITH_SYSTEM_SQLITE=ON \
-  -DBUILD_ALL=ON \
-  ..
-
-%__make %{?_smp_mflags} || %__make
-
-
-%install
-%__make install DESTDIR=$RPM_BUILD_ROOT -C build
-
-
+%install -a
 # unpackaged files
-%__rm -f $RPM_BUILD_ROOT%{tde_libdir}/lib*.la
+%__rm -f %{buildroot}/%{tde_libdir}/lib*.la
 # Removes '.so' to avoid automatic -devel dependency
-%__rm -f $RPM_BUILD_ROOT%{tde_libdir}/libamarok.so
+%__rm -f %{buildroot}/%{tde_libdir}/libamarok.so
 
 # Locales
 %find_lang %{tde_pkg}
 
 # HTML
-for lang_dir in $RPM_BUILD_ROOT%{tde_tdedocdir}/HTML/* ; do
+for lang_dir in %{buildroot}/%{tde_tdedocdir}/HTML/* ; do
   if [ -d $lang_dir ]; then
     lang=$(basename $lang_dir)
     [ "$lang" == "en" ] && d=en/amarok || d=$lang
