@@ -16,21 +16,12 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 2
+%define pkg_rel 3
 
 %define tde_pkg amarok
+
 %define tde_prefix /opt/trinity
-%define tde_bindir %{tde_prefix}/bin
-%define tde_confdir %{_sysconfdir}/trinity
-%define tde_datadir %{tde_prefix}/share
-%define tde_docdir %{tde_datadir}/doc
-%define tde_includedir %{tde_prefix}/include
-%define tde_libdir %{tde_prefix}/%{_lib}
-%define tde_mandir %{tde_datadir}/man
-%define tde_tdeappdir %{tde_datadir}/applications/tde
-%define tde_tdedocdir %{tde_docdir}/tde
-%define tde_tdeincludedir %{tde_includedir}/tde
-%define tde_tdelibdir %{tde_libdir}/trinity
+
 
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
@@ -53,10 +44,6 @@ URL:		http://www.trinitydesktop.org/
 
 License:	GPLv2+
 
-#Vendor:		Trinity Desktop
-#Packager:	Francois Andriot <francois.andriot@free.fr>
-
-Prefix:		%{tde_prefix}
 
 Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/multimedia/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
 
@@ -65,29 +52,27 @@ BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
 BuildOption:    -DCMAKE_SKIP_RPATH=OFF
 BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
 BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
-BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
-BuildOption:    -DBIN_INSTALL_DIR=%{tde_bindir}
-BuildOption:    -DCONFIG_INSTALL_DIR="%{tde_confdir}"
-BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_tdeincludedir}
-BuildOption:    -DLIB_INSTALL_DIR=%{tde_libdir}
-BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_datadir}
+BuildOption:    -DCMAKE_INSTALL_RPATH=%{tde_prefix}/%{_lib}
+BuildOption:    -DBIN_INSTALL_DIR=%{tde_prefix}/bin
+BuildOption:    -DCONFIG_INSTALL_DIR=%{_sysconfdir}/trinity
+BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_prefix}/include/tde
+BuildOption:    -DLIB_INSTALL_DIR=%{tde_prefix}/%{_lib}
+BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_prefix}/share
 BuildOption:    -DWITH_KONQSIDEBAR=ON
 BuildOption:    -DWITH_SYSTEM_SQLITE=ON
 BuildOption:    -DBUILD_ALL=ON
 BuildOption:    -DWITH_OPENGL=ON
-%{?with_libvisual:BuildOption:    -DWITH_LIBVISUAL=ON}
-%{?with_xine:BuildOption:    -DWITH_XINE=ON} 
-%{?!with_xine:BuildOption:    -DWITH_XINE=OFF}
-%{?with_yauap:BuildOption:    -DWITH_YAUAP=ON}
-%{?with_akode:BuildOption:    -DWITH_AKODE=ON}
-%{!?with_akode:BuildOption:    -DWITH_AKODE=OFF}
-%{?with_gpod:BuildOption:    -DWITH_IPOD=ON}
-%{?with_ifp:BuildOption:    -DWITH_IFP=ON}
-%{?with_njb:BuildOption:    -DWITH_NJB=ON}
-%{?with_mtp:BuildOption:    -DWITH_MTP=ON}
-%{!?with_daap:BuildOption:    -DWITH_DAAP=OFF}
-%{?with_inotify:BuildOption:    -DWITH_INOTIFY=ON}
+BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
+BuildOption:    -DWITH_LIBVISUAL=%{!?with_libvisual:OFF}%{?with_libvisual:ON}
+BuildOption:    -DWITH_XINE=%{!?with_xine:OFF}%{?with_xine:ON} 
+BuildOption:    -DWITH_YAUAP=%{!?with_yauap:OFF}%{?with_yauap:ON}
+BuildOption:    -DWITH_AKODE=%{!?with_akode:OFF}%{?with_akode:ON}
+BuildOption:    -DWITH_IPOD=%{!?with_gpod:OFF}%{?with_gpod:ON}
+BuildOption:    -DWITH_IFP=%{!?with_ifp:OFF}%{?with_ifp:ON}
+BuildOption:    -DWITH_NJB=%{!?with_njb:OFF}%{?with_njb:ON}
+BuildOption:    -DWITH_MTP=%{!?with_mtp:OFF}%{?with_mtp:ON}
+BuildOption:    -DWITH_DAAP=%{!?with_daap:OFF}%{?with_daap:ON}
+BuildOption:    -DWITH_INOTIFY=%{!?with_inotify:OFF}%{?with_inotify:ON}
 
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
@@ -205,99 +190,99 @@ Amarok is a multimedia player with:
 %files -f %{tde_pkg}.lang
 %defattr(-,root,root,-)
 %doc COPYING AUTHORS ChangeLog README.md
-%{tde_bindir}/amarok
-%{tde_bindir}/amarokapp
-%{tde_bindir}/amarokcollectionscanner
-%{tde_bindir}/amarok_proxy.rb
-%{tde_datadir}/apps/amarok/
-%{tde_datadir}/icons/crystalsvg/*/actions/covermanager.png
-%{tde_datadir}/icons/crystalsvg/*/actions/dynamic.png
-%{tde_datadir}/icons/crystalsvg/*/actions/equalizer.png
-%{tde_datadir}/icons/crystalsvg/*/actions/mini_dock.png
-%{tde_datadir}/icons/crystalsvg/*/actions/player_playlist_2.png
-%{tde_datadir}/icons/crystalsvg/*/actions/podcast.png
-%{tde_datadir}/icons/crystalsvg/*/actions/podcast_new.png
-%{tde_datadir}/icons/crystalsvg/*/actions/random.png
-%{tde_datadir}/icons/crystalsvg/*/actions/repeat_playlist.png
-%{tde_datadir}/icons/crystalsvg/*/actions/repeat_track.png
-%{tde_datadir}/icons/crystalsvg/*/actions/visualizations.png
-%{tde_datadir}/icons/crystalsvg/*/actions/wiki.png
-%{tde_datadir}/icons/crystalsvg/*/actions/amarok_podcast.png
-%{tde_datadir}/icons/crystalsvg/*/actions/amarok_podcast_new.png
-%{tde_datadir}/icons/crystalsvg/*/actions/amazon_locale.png
-%{tde_datadir}/icons/hicolor/*/*/*
-%{tde_tdeappdir}/*.desktop
-%{tde_datadir}/servicetypes/*.desktop
-%{tde_datadir}/apps/profiles/amarok.profile.xml
-%config(noreplace) %{tde_confdir}/amarokrc
-%{tde_datadir}/config.kcfg/*.kcfg
-%{tde_datadir}/services/amarokitpc.protocol
-%{tde_datadir}/services/amaroklastfm.protocol
-%{tde_datadir}/services/amarokpcast.protocol
-%{tde_mandir}/man1/amarok.1*
-%{tde_mandir}/man1/amarokapp.1*
-%{tde_mandir}/man1/amarokcollectionscanner.1*
+%{tde_prefix}/bin/amarok
+%{tde_prefix}/bin/amarokapp
+%{tde_prefix}/bin/amarokcollectionscanner
+%{tde_prefix}/bin/amarok_proxy.rb
+%{tde_prefix}/share/apps/amarok/
+%{tde_prefix}/share/icons/crystalsvg/*/actions/covermanager.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/dynamic.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/equalizer.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/mini_dock.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/player_playlist_2.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/podcast.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/podcast_new.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/random.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/repeat_playlist.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/repeat_track.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/visualizations.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/wiki.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/amarok_podcast.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/amarok_podcast_new.png
+%{tde_prefix}/share/icons/crystalsvg/*/actions/amazon_locale.png
+%{tde_prefix}/share/icons/hicolor/*/*/*
+%{tde_prefix}/share/applications/tde/*.desktop
+%{tde_prefix}/share/servicetypes/*.desktop
+%{tde_prefix}/share/apps/profiles/amarok.profile.xml
+%config(noreplace) %{_sysconfdir}/trinity/amarokrc
+%{tde_prefix}/share/config.kcfg/*.kcfg
+%{tde_prefix}/share/services/amarokitpc.protocol
+%{tde_prefix}/share/services/amaroklastfm.protocol
+%{tde_prefix}/share/services/amarokpcast.protocol
+%{tde_prefix}/share/man/man1/amarok.1*
+%{tde_prefix}/share/man/man1/amarokapp.1*
+%{tde_prefix}/share/man/man1/amarokcollectionscanner.1*
 # -libs ?  -- Rex
-%{tde_libdir}/libamarok.so.0
-%{tde_libdir}/libamarok.so.0.0.0
+%{tde_prefix}/%{_lib}/libamarok.so.0
+%{tde_prefix}/%{_lib}/libamarok.so.0.0.0
 # DAAP
 %if %{with daap}
-%{tde_bindir}/amarok_daapserver.rb
-%{tde_tdelibdir}/libamarok_daap-mediadevice.*
-%{tde_datadir}/services/amarok_daap-mediadevice.desktop
+%{tde_prefix}/bin/amarok_daapserver.rb
+%{tde_prefix}/%{_lib}/trinity/libamarok_daap-mediadevice.*
+%{tde_prefix}/share/services/amarok_daap-mediadevice.desktop
 %endif
 # Mass-storage
-%{tde_datadir}/services/amarok_massstorage-device.desktop
-%{tde_tdelibdir}/libamarok_massstorage-device.*
+%{tde_prefix}/share/services/amarok_massstorage-device.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_massstorage-device.*
 # NFS
-%{tde_datadir}/services/amarok_nfs-device.desktop
-%{tde_tdelibdir}/libamarok_nfs-device.*
+%{tde_prefix}/share/services/amarok_nfs-device.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_nfs-device.*
 # SMB
-%{tde_datadir}/services/amarok_smb-device.desktop
-%{tde_tdelibdir}/libamarok_smb-device.*
+%{tde_prefix}/share/services/amarok_smb-device.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_smb-device.*
 # IPod
 %if %{with gpod}
-%{tde_datadir}/services/amarok_ipod-mediadevice.desktop
-%{tde_tdelibdir}/libamarok_ipod-mediadevice.*
+%{tde_prefix}/share/services/amarok_ipod-mediadevice.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_ipod-mediadevice.*
 %endif
 # VFAT
-%{tde_datadir}/services/amarok_generic-mediadevice.desktop
-%{tde_tdelibdir}/libamarok_generic-mediadevice.*
+%{tde_prefix}/share/services/amarok_generic-mediadevice.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_generic-mediadevice.*
 # iRiver
 %if %{with ifp}
-%{tde_datadir}/services/amarok_ifp-mediadevice.desktop
-%{tde_tdelibdir}/libamarok_ifp-mediadevice.*
+%{tde_prefix}/share/services/amarok_ifp-mediadevice.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_ifp-mediadevice.*
 %endif
 # Creative Zen
 %if %{with njb}
-%{tde_datadir}/services/amarok_njb-mediadevice.desktop
-%{tde_tdelibdir}/libamarok_njb-mediadevice.*
+%{tde_prefix}/share/services/amarok_njb-mediadevice.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_njb-mediadevice.*
 %endif
 # MTP players
 %if %{with mtp}
-%{tde_datadir}/services/amarok_mtp-mediadevice.desktop
-%{tde_tdelibdir}/libamarok_mtp-mediadevice.*
+%{tde_prefix}/share/services/amarok_mtp-mediadevice.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_mtp-mediadevice.*
 %endif
 # Void engine (noop)
-%{tde_datadir}/services/amarok_void-engine_plugin.desktop
-%{tde_tdelibdir}/libamarok_void-engine_plugin.*
+%{tde_prefix}/share/services/amarok_void-engine_plugin.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_void-engine_plugin.*
 # Xine engine
 %if %{with xine}
-%{tde_datadir}/services/amarok_xine-engine.desktop
-%{tde_tdelibdir}/libamarok_xine-engine.*
+%{tde_prefix}/share/services/amarok_xine-engine.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_xine-engine.*
 %endif
 ## Gstreamer engine
 #{tde_datadir}/services/amarok_gst10engine_plugin.desktop
 #{tde_tdelibdir}/libamarok_gst10engine_plugin.*
 # YAUAP
 %if %{with yauap}
-%{tde_datadir}/services/amarok_yauap-engine_plugin.desktop
-%{tde_tdelibdir}/libamarok_yauap-engine_plugin.*
+%{tde_prefix}/share/services/amarok_yauap-engine_plugin.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_yauap-engine_plugin.*
 %endif
 # AKODE
 %if %{with akode}
-%{tde_datadir}/services/amarok_aKode-engine.desktop
-%{tde_tdelibdir}/libamarok_aKode-engine.*
+%{tde_prefix}/share/services/amarok_aKode-engine.desktop
+%{tde_prefix}/%{_lib}/trinity/libamarok_aKode-engine.*
 %endif
 
 ##########
@@ -314,9 +299,9 @@ Requires:		trinity-konqueror
 
 %files konqueror
 %defattr(-,root,root,-)
-%{tde_datadir}/apps/konqueror/servicemenus/*.desktop
-%{tde_tdelibdir}/konqsidebar_universalamarok.*
-%{tde_datadir}/apps/konqsidebartng/*/amarok_konquisidebar.desktop
+%{tde_prefix}/share/apps/konqueror/servicemenus/*.desktop
+%{tde_prefix}/%{_lib}/trinity/konqsidebar_universalamarok.*
+%{tde_prefix}/share/apps/konqsidebartng/*/amarok_konquisidebar.desktop
 
 
 ##########
@@ -337,8 +322,8 @@ use any of xmms' visualisation plugins with Amarok.
 
 %files visualisation
 %defattr(-,root,root,-)
-%{tde_bindir}/amarok_libvisual
-%{tde_mandir}/man1/amarok_libvisual.1*
+%{tde_prefix}/bin/amarok_libvisual
+%{tde_prefix}/share/man/man1/amarok_libvisual.1*
 
 %endif
 
@@ -352,25 +337,25 @@ if ! ruby -rrbconfig -e "puts Config.expand( Config::MAKEFILE_CONFIG['MAJOR'] )"
 fi
 
 unset QTDIR QTINC QTLIB
-export PATH="%{tde_bindir}:${PATH}"
-export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig"
+export PATH="%{tde_prefix}/bin:${PATH}"
+export PKG_CONFIG_PATH="%{tde_prefix}/%{_lib}/pkgconfig"
 
 
 %install -a
 # unpackaged files
-%__rm -f %{buildroot}/%{tde_libdir}/lib*.la
+%__rm -f %{buildroot}/%{tde_prefix}/%{_lib}/lib*.la
 # Removes '.so' to avoid automatic -devel dependency
-%__rm -f %{buildroot}/%{tde_libdir}/libamarok.so
+%__rm -f %{buildroot}/%{tde_prefix}/%{_lib}/libamarok.so
 
 # Locales
 %find_lang %{tde_pkg}
 
 # HTML
-for lang_dir in %{buildroot}/%{tde_tdedocdir}/HTML/* ; do
+for lang_dir in %{buildroot}/%{tde_prefix}/share/doc/tde/HTML/* ; do
   if [ -d $lang_dir ]; then
     lang=$(basename $lang_dir)
     [ "$lang" == "en" ] && d=en/amarok || d=$lang
-    echo "%lang($lang) %doc %{tde_tdedocdir}/HTML/$d" >> amarok.lang
+    echo "%lang($lang) %doc %{tde_prefix}/share/doc/tde/HTML/$d" >> amarok.lang
   fi
 done
 
