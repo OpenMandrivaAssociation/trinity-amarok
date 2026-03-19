@@ -12,11 +12,9 @@
 %bcond akode 1
 
 # TDE variables
-%define tde_epoch 2
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 4
 
 %define tde_pkg amarok
 
@@ -34,9 +32,8 @@
 
 
 Name:		trinity-%{tde_pkg}
-Epoch:		%{tde_epoch}
 Version:	1.4.10
-Release:	%{?tde_version}_%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
+Release:	%{?tde_version:%{tde_version}_}5
 Summary:	Media player for TDE
 Group:		Applications/Multimedia
 URL:		http://www.trinitydesktop.org/
@@ -45,7 +42,7 @@ URL:		http://www.trinitydesktop.org/
 License:	GPLv2+
 
 
-Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/multimedia/%{tarball_name}-%{tde_version}%{?preversion:~%{preversion}}.tar.xz
+Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/multimedia/%{tarball_name}-%{tde_version}.tar.xz
 
 BuildSystem:    cmake
 
@@ -120,7 +117,7 @@ BuildRequires:	pkgconfig(libidn)
 BuildRequires:  pkgconfig(dbus-1)
 
 # DBUS-(T)QT support
-BuildRequires:	trinity-dbus-tqt-devel >= 1:0.63
+BuildRequires:	pkgconfig(dbus-tqt)
 
 # IFP support
 %{?with_ifp:BuildRequires:	%{_lib}ifp-devel}
@@ -147,7 +144,7 @@ Requires:       xine-plugins
 %endif
 
 # AKODE support
-%{?with_akode:BuildRequires:	trinity-akode-devel}
+%{?with_akode:BuildRequires:	pkgconfig(akode)}
 
 # ruby
 BuildRequires:	ruby
@@ -286,7 +283,7 @@ Amarok is a multimedia player with:
 Summary:		Amarok konqueror (service menus, sidebar) support
 Group:			Applications/Multimedia
 
-Requires:		%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:		%{name} = %{EVRD}
 Requires:		trinity-konqueror
 
 %description konqueror
@@ -306,7 +303,7 @@ Requires:		trinity-konqueror
 %package visualisation
 Summary:		Visualisation plugins for Amarok
 Group:			Applications/Multimedia
-Requires:		%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:		%{name} = %{EVRD}
 # No plugins by default, we need libvisual-plugins
 #Requires:   libvisual-plugins
 
