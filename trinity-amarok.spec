@@ -69,9 +69,8 @@ BuildOption:    -DWITH_INOTIFY=%{!?with_inotify:OFF}%{?with_inotify:ON}
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
 BuildRequires:	trinity-konqueror-devel >= %{tde_version}
-
+BuildRequires:  tqt3-dev-tools
 BuildRequires:	trinity-filesystem >= %{tde_version}
-Requires:		trinity-filesystem >= %{tde_version}
 
 BuildRequires:	desktop-file-utils
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
