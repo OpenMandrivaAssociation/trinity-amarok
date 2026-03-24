@@ -33,7 +33,7 @@
 
 Name:		trinity-%{tde_pkg}
 Version:	1.4.10
-Release:	%{?tde_version:%{tde_version}_}5
+Release:	%{?tde_version:%{tde_version}_}6
 Summary:	Media player for TDE
 Group:		Applications/Multimedia
 URL:		http://www.trinitydesktop.org/
@@ -69,7 +69,6 @@ BuildOption:    -DWITH_INOTIFY=%{!?with_inotify:OFF}%{?with_inotify:ON}
 BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
 BuildRequires:	trinity-konqueror-devel >= %{tde_version}
-BuildRequires:  tqt3-dev-tools
 BuildRequires:	trinity-filesystem >= %{tde_version}
 
 BuildRequires:	desktop-file-utils
