@@ -12,10 +12,6 @@
 %bcond akode 1
 
 # TDE variables
-%if "%{?tde_version}" == ""
-%define tde_version 14.1.5
-%endif
-
 %define tde_pkg amarok
 
 %define tde_prefix /opt/trinity
@@ -26,14 +22,14 @@
 %define _disable_rebuild_configure 1
 
 # fixes error: Empty %files file …/debugsourcefiles.list
-%define _debugsource_template %{nil}
+%undefine _debugsource_template
 
 %define tarball_name %{tde_pkg}-trinity
 
 
 Name:		trinity-%{tde_pkg}
-Version:	1.4.10
-Release:	%{?tde_version:%{tde_version}_}6
+Version:	14.1.6
+Release:	1
 Summary:	Media player for TDE
 Group:		Applications/Multimedia
 URL:		http://www.trinitydesktop.org/
@@ -42,7 +38,7 @@ URL:		http://www.trinitydesktop.org/
 License:	GPLv2+
 
 
-Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/applications/multimedia/%{tarball_name}-%{tde_version}.tar.xz
+Source0:		https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{version}/main/applications/multimedia/%{tarball_name}-%{version}.tar.xz
 
 BuildSystem:    cmake
 
@@ -66,13 +62,13 @@ BuildOption:    -DWITH_MTP=%{!?with_mtp:OFF}%{?with_mtp:ON}
 BuildOption:    -DWITH_DAAP=%{!?with_daap:OFF}%{?with_daap:ON}
 BuildOption:    -DWITH_INOTIFY=%{!?with_inotify:OFF}%{?with_inotify:ON}
 
-BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
-BuildRequires:	trinity-tdebase-devel >= %{tde_version}
-BuildRequires:	trinity-konqueror-devel >= %{tde_version}
-BuildRequires:	trinity-filesystem >= %{tde_version}
+BuildRequires:	trinity-tdelibs-devel >= %{version}
+BuildRequires:	trinity-tdebase-devel >= %{version}
+BuildRequires:	trinity-konqueror-devel >= %{version}
+BuildRequires:	trinity-filesystem >= %{version}
 
 BuildRequires:	desktop-file-utils
-BuildRequires:	trinity-tde-cmake >= %{tde_version}
+BuildRequires:	trinity-tde-cmake >= %{version}
 
 %{!?with_clang:BuildRequires:	gcc-c++}
 
